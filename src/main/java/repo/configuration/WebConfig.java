@@ -1,5 +1,6 @@
 package repo.configuration;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -7,16 +8,19 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
+    @Value("${cors.allowed.origins}")
+    private String corsAllowedOrigins;
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
 //        registry.addMapping("/**")
 //                .allowedOrigins("*")
 //                .allowedMethods("HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE");
 
-        registry.addMapping("/**") // This applies the CORS policy to all endpoints
-                .allowedOrigins("http://localhost:3001") // Specify the exact origin of your React app
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Allow all necessary methods
-                .allowedHeaders("*") // Allow all headers
-                .allowCredentials(true); // Crucially, allow credentials (cookies) to be sent
+        registry.addMapping("/**")
+                .allowedOrigins(corsAllowedOrigins)
+                .allowedMethods("HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE")
+                .allowedHeaders("*")
+                .allowCredentials(true);
     }
 }
