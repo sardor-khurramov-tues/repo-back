@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - logicalFilePath: no-path
+  - changeSet:
+      id: 2025-09-08
+      author: postgresql
+      changes:
+        - sqlFile:
+            dbms: 'postgresql'
+            path: db/changelog/v1_000/ddl/2025-09-08.sql

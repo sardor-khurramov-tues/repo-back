@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: repo
+  profiles:
+    active: dev
+  liquibase:
+    enabled: true
+  jpa:
+    show-sql: false
+    open-in-view: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        ddl-auto: validate
+        enable_lazy_load_no_trans: true
+      jakarta:
+        persistence:
+          sharedCache:
+            mode: UNSPECIFIED
+  servlet:
+    multipart:
+      max-file-size: 5MB
+logging:
+  config: ./config/logback-config.xml
