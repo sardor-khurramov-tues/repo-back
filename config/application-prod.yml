@@ -37,3 +37,6 @@ recaptcha:
 cors:
   allowed:
     origins: ${CORS_ALLOWED_ORIGINS}
+app:
+  cookie:
+    secure: false

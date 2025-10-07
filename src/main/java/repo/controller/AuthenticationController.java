@@ -5,7 +5,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,8 +29,11 @@ public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
 
-    public static final long ACCESS_TOKEN_VALIDITY = 24L * 60L * 60L * 1000L; // 1 day in millis
-    public static final long REFRESH_TOKEN_VALIDITY = 12L * 24L * 60L * 60L * 1000L; // 12 days in millis
+    @Value("${app.cookie.secure}")
+    private boolean cookieSecure;
+
+    public static final long ACCESS_TOKEN_VALIDITY = 24L * 60L * 60L; // 1 day in seconds
+    public static final long REFRESH_TOKEN_VALIDITY = 12L * 24L * 60L * 60L; // 12 days in seconds
 
     public static final String ACCESS_TOKEN_NAME = "access-token";
     public static final String REFRESH_TOKEN_NAME = "refresh-token";
@@ -48,7 +54,7 @@ public class AuthenticationController {
 
         ResponseCookie accessTokenCookie = ResponseCookie.from(ACCESS_TOKEN_NAME, accessToken)
                 .httpOnly(true)
-                .secure(true)
+                .secure(cookieSecure)
                 .path(ACCESS_TOKEN_PATH)
                 .maxAge(ACCESS_TOKEN_VALIDITY)
                 .sameSite(SAME_SITE_RESTRICTION)
@@ -56,7 +62,7 @@ public class AuthenticationController {
 
         ResponseCookie refreshTokenCookie = ResponseCookie.from(REFRESH_TOKEN_NAME, refreshToken)
                 .httpOnly(true)
-                .secure(true)
+                .secure(cookieSecure)
                 .path(REFRESH_TOKEN_PATH)
                 .maxAge(REFRESH_TOKEN_VALIDITY)
                 .sameSite(SAME_SITE_RESTRICTION)
@@ -90,7 +96,7 @@ public class AuthenticationController {
 
         ResponseCookie accessTokenCookie = ResponseCookie.from(ACCESS_TOKEN_NAME, accessToken)
                 .httpOnly(true)
-                .secure(true)
+                .secure(cookieSecure)
                 .path(ACCESS_TOKEN_PATH)
                 .maxAge(ACCESS_TOKEN_VALIDITY)
                 .sameSite(SAME_SITE_RESTRICTION)
@@ -98,7 +104,7 @@ public class AuthenticationController {
 
         ResponseCookie refreshTokenCookie = ResponseCookie.from(REFRESH_TOKEN_NAME, refreshToken)
                 .httpOnly(true)
-                .secure(true)
+                .secure(cookieSecure)
                 .path(REFRESH_TOKEN_PATH)
                 .maxAge(REFRESH_TOKEN_VALIDITY)
                 .sameSite(SAME_SITE_RESTRICTION)
@@ -116,14 +122,14 @@ public class AuthenticationController {
     ) {
         ResponseCookie accessTokenCookie = ResponseCookie.from(ACCESS_TOKEN_NAME)
                 .httpOnly(true)
-                .secure(true)
+                .secure(cookieSecure)
                 .path(ACCESS_TOKEN_PATH)
                 .maxAge(0)
                 .build();
 
         ResponseCookie refreshTokenCookie = ResponseCookie.from(REFRESH_TOKEN_NAME)
                 .httpOnly(true)
-                .secure(true)
+                .secure(cookieSecure)
                 .path(REFRESH_TOKEN_PATH)
                 .maxAge(0)
                 .build();

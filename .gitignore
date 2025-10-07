@@ -40,3 +40,4 @@ draft.txt
 config/application-dev.yml
 docker_data/
 .env
+.env.example
