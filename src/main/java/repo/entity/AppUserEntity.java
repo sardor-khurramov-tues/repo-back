@@ -44,6 +44,9 @@ public class AppUserEntity implements UserDetails {
     @Column(name = "middle_name")
     private String middleName;
 
+    private String orcid;
+    private String ror;
+
     @Column(name = "image_name")
     private String imageName;
 
@@ -54,7 +57,7 @@ public class AppUserEntity implements UserDetails {
     private Boolean isBlocked;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "department_id")
+    @JoinColumn(name = "department")
     private DepartmentEntity department;
 
     @Override

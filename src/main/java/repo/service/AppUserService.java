@@ -15,6 +15,8 @@ import repo.entity.DepartmentEntity;
 import repo.entity.enums.UserRole;
 import repo.exception.CustomBadRequestException;
 import repo.repository.AppUserRepository;
+import repo.repository.DocContributorRepository;
+import repo.repository.DocumentRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,6 +32,8 @@ public class AppUserService {
     private final PasswordEncoder passwordEncoder;
     private final MapperService mapperService;
     private final EmailService emailService;
+    private final DocumentRepository documentRepository;
+    private final DocContributorRepository docContributorRepository;
 
     public AppUserEntity getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -41,7 +45,6 @@ public class AppUserService {
         DepartmentEntity department = departmentService.getDepartmentById(dto.departmentId());
 
         validateUsername(dto.username());
-        validateHemisId(dto.hemisId());
 
         AppUserEntity user = new AppUserEntity();
 
@@ -50,7 +53,6 @@ public class AppUserService {
                 passwordEncoder.encode(dto.password())
         );
         user.setUserRole(UserRole.STAFF);
-        user.setHemisId(dto.hemisId());
         user.setFirstName(dto.firstName());
         user.setLastName(dto.lastName());
         user.setMiddleName(dto.middleName());
@@ -86,6 +88,8 @@ public class AppUserService {
         user.setFirstName(dto.firstName());
         user.setLastName(dto.lastName());
         user.setMiddleName(dto.middleName());
+        user.setOrcid(dto.orcid());
+        user.setRor(dto.ror());
         user.setCreatedAt(LocalDateTime.now());
         user.setIsBlocked(false);
         user.setDepartment(department);
@@ -123,6 +127,8 @@ public class AppUserService {
         user.setFirstName(dto.firstName());
         user.setLastName(dto.lastName());
         user.setMiddleName(dto.middleName());
+        user.setOrcid(dto.orcid());
+        user.setRor(dto.ror());
         user.setDepartment(department);
 
         AppUserEntity savedUser = appUserRepository.save(user);
@@ -137,20 +143,6 @@ public class AppUserService {
         validateDeletion(user);
 
         appUserRepository.delete(user);
-        return ResponseEntity.ok(ResponseDto.getEmptySuccess());
-    }
-
-    @Transactional
-    public ResponseEntity<ResponseDto<Object>> deleteAuthorByStaff(Long id) {
-        AppUserEntity staff = getAuthenticatedUser();
-        AppUserEntity author = getUserById(id);
-
-        validateIsAuthor(author);
-        validateStaffAndAuthorDepartment(staff, author);
-
-        validateDeletion(author);
-        appUserRepository.delete(author);
-
         return ResponseEntity.ok(ResponseDto.getEmptySuccess());
     }
 
@@ -172,33 +164,19 @@ public class AppUserService {
         ));
     }
 
-    public ResponseEntity<ResponseDto<FindClientResponseDto>> findUserByAdmin(String key, Long limit, Long page) {
+    public ResponseEntity<ResponseDto<FindClientResponseDto>> findUserByAdmin(String key, UserRole userRole, Long limit, Long page) {
         String searchKey = "%" + key.toLowerCase() + "%";
         long offset = page * limit;
 
-        Long count = appUserRepository.countBySearchKey(searchKey);
+        Long count = Objects.isNull(userRole) ?
+                appUserRepository.countBySearchKey(searchKey) :
+                appUserRepository.countBySearchKeyAndUserRole(searchKey, userRole.toString());
 
-        List<AppUserResponseDto> dtoList = appUserRepository.findBySearchKey(searchKey, limit, offset)
-                .stream()
-                .map(mapperService::mapAppUserEntityToDto)
-                .toList();
+        List<AppUserEntity> userEntityList = Objects.isNull(userRole) ?
+                appUserRepository.findBySearchKey(searchKey, limit, offset) :
+                appUserRepository.findBySearchKeyAndUserRole(searchKey, userRole.toString(), limit, offset);
 
-        long pageCount = count % limit == 0 ? (count / limit) : (count / limit + 1L);
-
-        return ResponseEntity.ok(ResponseDto.getSuccess(
-                new FindClientResponseDto(count, pageCount, dtoList)
-        ));
-    }
-
-    public ResponseEntity<ResponseDto<FindClientResponseDto>> findAuthorByStaff(String key, Long limit, Long page) {
-        Long depId = getAuthenticatedUser().getDepartment().getId();
-
-        String searchKey = "%" + key.toLowerCase() + "%";
-        long offset = page * limit;
-
-        Long count = appUserRepository.countAuthorBySearchKeyAndDepartment(searchKey, depId);
-
-        List<AppUserResponseDto> dtoList = appUserRepository.findAuthorBySearchKeyAndDepartment(searchKey, depId, limit, offset)
+        List<AppUserResponseDto> dtoList = userEntityList
                 .stream()
                 .map(mapperService::mapAppUserEntityToDto)
                 .toList();
@@ -215,19 +193,6 @@ public class AppUserService {
 
         client.setIsBlocked(dto.isBlocked());
         appUserRepository.save(client);
-
-        return ResponseEntity.ok(ResponseDto.getEmptySuccess());
-    }
-
-    public ResponseEntity<ResponseDto<Object>> setBlockByStaff(Long id, SetBlockDto dto) {
-        AppUserEntity staff = getAuthenticatedUser();
-        AppUserEntity author = getUserById(id);
-
-        validateIsAuthor(author);
-        validateStaffAndAuthorDepartment(staff, author);
-
-        author.setIsBlocked(dto.isBlocked());
-        appUserRepository.save(author);
 
         return ResponseEntity.ok(ResponseDto.getEmptySuccess());
     }
@@ -281,8 +246,20 @@ public class AppUserService {
     }
 
     private void validateDeletion(AppUserEntity user) {
-        if (Objects.isNull(user))
+        if (
+                documentRepository.existsBySubmitter(user) ||
+                        docContributorRepository.existsByAppUser(user)
+        )
             throw new CustomBadRequestException(ResponseType.USER_DELETION_FORBIDDEN);
+    }
+
+    public AppUserEntity getAuthorById(Long id) {
+        try {
+            return appUserRepository.findByIdAndUserRole(id, UserRole.AUTHOR)
+                    .orElseThrow();
+        } catch (NoSuchElementException e) {
+            throw new CustomBadRequestException(ResponseType.NO_USER_WITH_THIS_ID);
+        }
     }
 
 }

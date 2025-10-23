@@ -1,4 +1,4 @@
-package repo.controller;
+package repo.controller.admin;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +44,7 @@ public class AdminDepartmentController {
     }
 
     @GetMapping(produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseDto<List<DepartmentDto>>> findUserByAdmin() {
+    public ResponseEntity<ResponseDto<List<DepartmentDto>>> getAll() {
         return departmentService.getAll();
     }
 

@@ -2,6 +2,7 @@
 
 create table department (
     id              bigserial           primary key,
+    dep_type        varchar(31)         not null,
     name_uz         varchar(63)         not null,
     name_en         varchar(63)         not null,
     name_ru         varchar(63)         not null,
@@ -17,75 +18,69 @@ create table app_user (
     first_name      varchar(63)         not null,
     last_name       varchar(63)         not null,
     middle_name     varchar(63),
+    orcid           varchar(19),
+    ror             varchar(30),
     image_name      varchar(36),
     created_at      timestamp           not null,
     is_blocked      boolean             not null,
-    department_id   bigint,
-    constraint  app_user_department_id_fkey
-        foreign key (department_id)
+    department      bigint,
+    constraint  app_user_department_fkey
+        foreign key (department)
         references department (id) match simple
         on update restrict
         on delete restrict
-);
-
-create table doc_type (
-    id              bigserial           primary key,
-    name_uz         varchar(63)         not null,
-    name_en         varchar(63)         not null,
-    name_ru         varchar(63)         not null
 );
 
 create table document (
     id              bigserial           primary key,
     created_at      timestamp           not null,
-    title           varchar(63)         not null,
-    subtitle        varchar(127),
-    doc_lang        varchar(2)          not null,
-    doi             varchar(510),
-    about           varchar(510),
+    doc_key         varchar(41)         not null,
+    doc_type        varchar(31)         not null,
+    title           varchar(255)        not null,
+    series_title    varchar(255),
+    issn            varchar(9),
+    isbn            varchar(17),
+    volume          bigint,
+    series_number   bigint,
+    edition_number  bigint,
+    ror             varchar(30),
+    degree          varchar(31),
+    first_page      bigint,
+    last_page       bigint,
+    proceed_subj    varchar(255),
+    doc_abstract    varchar(5000),
+    approval_date   date,
+    pub_date        date,
     is_published    boolean             not null,
-    published_at    timestamp           not null,
-    department_id   bigint              not null,
-    doc_type        bigint              not null,
-    constraint  document_department_id_fkey
-        foreign key (department_id)
-        references department (id) match simple
+    submitter       bigint              not null,
+    department      bigint              not null,
+    constraint  document_submitter_fkey
+        foreign key (submitter)
+        references app_user (id) match simple
         on update restrict
         on delete restrict,
-    constraint  document_doc_type_fkey
-        foreign key (doc_type)
-        references doc_type (id) match simple
+    constraint  document_department_fkey
+        foreign key (department)
+        references department (id) match simple
         on update restrict
         on delete restrict
 );
 
-create table doc_role (
-    id              bigserial           primary key,
-    name_uz         varchar(63)         not null,
-    name_en         varchar(63)         not null,
-    name_ru         varchar(63)         not null
-);
-
 create table doc_contributor (
     id              bigserial           primary key,
-    doc_id          bigint              not null,
-    user_id         bigint              not null,
-    role_id         bigint              not null,
-    constraint  doc_contributor_doc_id_fkey
-        foreign key (doc_id)
+    document        bigint              not null,
+    app_user        bigint              not null,
+    doc_role        varchar(31)         not null,
+    constraint  doc_contributor_document_fkey
+        foreign key (document)
         references document (id) match simple
         on update restrict
         on delete restrict,
-    constraint  doc_contributor_user_id_fkey
-        foreign key (user_id)
+    constraint  doc_contributor_app_user_fkey
+        foreign key (app_user)
         references app_user (id) match simple
         on update restrict
         on delete restrict,
-    constraint  doc_contributor_role_id_fkey
-        foreign key (role_id)
-        references doc_role (id) match simple
-        on update restrict
-        on delete restrict,
-    constraint  doc_contributor_doc_id_user_id_unique unique
-        (doc_id, user_id)
+    constraint  doc_contributor_document_app_user_unique unique
+        (document, app_user)
 );

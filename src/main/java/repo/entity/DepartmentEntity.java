@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import repo.entity.enums.DepType;
 
 @Data
 @NoArgsConstructor
@@ -16,6 +17,10 @@ public class DepartmentEntity {
     @SequenceGenerator(name = "department_id_generator", sequenceName = "department_id_seq", allocationSize = 1)
     @GeneratedValue(generator = "department_id_generator")
     private Long id;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "dep_type")
+    private DepType depType;
 
     @Column(name = "name_uz")
     private String nameUz;

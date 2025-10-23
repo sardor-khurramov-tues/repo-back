@@ -11,9 +11,11 @@ import repo.entity.DepartmentEntity;
 import repo.exception.CustomBadRequestException;
 import repo.repository.AppUserRepository;
 import repo.repository.DepartmentRepository;
+import repo.repository.DocumentRepository;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @Service
@@ -22,10 +24,12 @@ public class DepartmentService {
     private final DepartmentRepository departmentRepository;
     private final MapperService mapperService;
     private final AppUserRepository appUserRepository;
+    private final DocumentRepository documentRepository;
 
     public ResponseEntity<ResponseDto<DepartmentDto>> create(DepartmentSaveDto dto) {
         DepartmentEntity department = new DepartmentEntity();
 
+        department.setDepType(dto.depType());
         department.setNameUz(dto.nameUz());
         department.setNameEn(dto.nameEn());
         department.setNameRu(dto.nameRu());
@@ -41,6 +45,7 @@ public class DepartmentService {
     public ResponseEntity<ResponseDto<DepartmentDto>> update(Long id, DepartmentSaveDto dto) {
         DepartmentEntity department = getDepartmentById(id);
 
+        department.setDepType(dto.depType());
         department.setNameUz(dto.nameUz());
         department.setNameEn(dto.nameEn());
         department.setNameRu(dto.nameRu());
@@ -62,7 +67,20 @@ public class DepartmentService {
     }
 
     public ResponseEntity<ResponseDto<List<DepartmentDto>>> getAll() {
-        List<DepartmentDto> dtoList = departmentRepository.findAll()
+        List<DepartmentDto> dtoList = departmentRepository.findAllByOrderById()
+                .stream()
+                .map(mapperService::mapDepartmentEntityToDto)
+                .toList();
+
+        return ResponseEntity.ok(ResponseDto.getSuccess(dtoList));
+    }
+
+    public ResponseEntity<ResponseDto<List<DepartmentDto>>> getPublicDepartmentList(Boolean isBlocked) {
+        List<DepartmentEntity> departmentList = Objects.isNull(isBlocked) ?
+                departmentRepository.findAllByOrderById() :
+                departmentRepository.findByIsBlockedOrderById(isBlocked);
+
+        List<DepartmentDto> dtoList = departmentList
                 .stream()
                 .map(mapperService::mapDepartmentEntityToDto)
                 .toList();
@@ -82,7 +100,10 @@ public class DepartmentService {
     }
 
     private void validateDeletion(DepartmentEntity department) {
-        if (appUserRepository.existsByDepartment(department))
+        if (
+                appUserRepository.existsByDepartment(department) ||
+                        documentRepository.existsByDepartment(department)
+        )
             throw new CustomBadRequestException(ResponseType.DEPARTMENT_DELETION_FORBIDDEN);
     }
 

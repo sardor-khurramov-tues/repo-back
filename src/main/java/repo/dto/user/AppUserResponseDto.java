@@ -10,6 +10,8 @@ public record AppUserResponseDto(
         String firstName,
         String lastName,
         String middleName,
+        String orcid,
+        String ror,
         String imageName,
         Boolean isBlocked
 ) {}

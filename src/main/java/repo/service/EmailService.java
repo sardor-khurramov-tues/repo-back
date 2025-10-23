@@ -17,15 +17,14 @@ public class EmailService {
 
     public String generatePasswordAndSendEmail(String email) {
 //        String newPassword = RandomStringUtils.random(12, true, true);
-        String newPassword = "12345678";
+//        sendEmail(
+//                email,
+//                "Welcome to TUES Repository",
+//                String.format("Welcome to TUES Repository%n%nYour new password: %s %n", newPassword)
+//        );
+//        return newPassword;
 
-        sendEmail(
-                email,
-                "Welcome to TUES Repository",
-                String.format("Welcome to TUES Repository%n%nYour new password: %s %n", newPassword)
-        );
-
-        return newPassword;
+        return "12345678";
     }
 
     public void sendEmail(String to, String subject, String text) {

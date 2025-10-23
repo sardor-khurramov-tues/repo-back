@@ -86,7 +86,7 @@ public class AuthenticationService {
 
     private void checkUserIsNonBlocked(AppUserEntity appUserEntity) {
         if (Boolean.TRUE.equals(appUserEntity.getIsBlocked()))
-            throw new CustomBadRequestException(ResponseType.WRONG_CREDENTIALS);
+            throw new CustomBadRequestException(ResponseType.USER_BLOCKED);
     }
 
     public AppUserEntity getUserById(Long userId) {

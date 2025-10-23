@@ -20,9 +20,16 @@ public final class Endpoint {
     public static final String REGISTER = "/register";
     public static final String PASSWORD = "/password";
     public static final String BLOCK = "/block";
-    public static final String EMAIL = "/email";
 
     public static final String DEPARTMENT = "/department";
+    public static final String DOCUMENT = "/document";
+    public static final String CONTRIBUTOR = "/contributor";
+    public static final String DISSERTATION = "/dissertation";
+    public static final String CONFERENCE_PROCEEDINGS = "/conference-proceedings";
+    public static final String CONFERENCE_PAPER = "/conference-paper";
+    public static final String BOOK = "/book";
+    public static final String BOOK_CHAPTER = "/book-chapter";
+    public static final String REPORT = "/report";
 
     public static final String FIND_BY = "/find-by";
 

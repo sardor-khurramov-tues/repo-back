@@ -28,6 +28,17 @@ public enum ResponseType {
     USER_NOT_AUTHOR(2007, "user not author"),
     FALSE_DEPARTMENT(2008, "false department"),
     USER_DELETION_FORBIDDEN(2009, "user deletion forbidden"),
+    USER_BLOCKED(2010, "user blocked"),
+
+    NO_DOCUMENT_WITH_THIS_ID(3001, "no document with this id"),
+    DOCUMENT_DELETION_FORBIDDEN(3002, "document deletion forbidden"),
+    DOCUMENT_IS_PUBLISHED(3003, "document is published"),
+    WRONG_DOCUMENT_SUBMITTER(3004, "wrong document submitter"),
+    CONTRIBUTOR_EXISTS(3005, "contributor exists"),
+    NO_DOC_CONTRIBUTOR_WITH_THIS_ID(3006, "no doc contributor with this id"),
+    WRONG_DOCUMENT_STAFF(3007, "wrong document staff"),
+    SUBMITTER_DELETION_FORBIDDEN(3008, "submitter deletion forbidden"),
+    MAX_NON_PUBLISHED_DOC_LIMIT_REACHED(3009, "max non published doc limit reached"),
 
     BAD_REQUEST(99999, "bad request");
 

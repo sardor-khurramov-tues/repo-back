@@ -14,19 +14,13 @@ public record RegisterStaffDto(
         @Pattern(regexp = "^\\S*$")
         @Size(min = 8, max = 64)
         String password,
-        @Size(max = 31)
-        @Pattern(regexp = "^\\S*$")
-        String hemisId,
         @NotBlank
-        @Pattern(regexp = "^\\S*$")
         @Size(max = 63)
         String firstName,
         @NotBlank
-        @Pattern(regexp = "^\\S*$")
         @Size(max = 63)
         String lastName,
         @Size(max = 63)
-        @Pattern(regexp = "^\\S*$")
         String middleName,
         @NotNull
         Long departmentId

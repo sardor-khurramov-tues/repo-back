@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import repo.entity.AppUserEntity;
 import repo.entity.DepartmentEntity;
+import repo.entity.enums.UserRole;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +18,7 @@ public interface AppUserRepository extends JpaRepository<AppUserEntity, Long> {
     boolean existsByUsername(String username);
 
     boolean existsByHemisId(String hemisId);
+
     boolean existsByHemisIdAndIdNot(String hemisId, Long id);
 
     Optional<AppUserEntity> findByIdAndIsBlockedFalse(Long id);
@@ -47,6 +49,7 @@ public interface AppUserRepository extends JpaRepository<AppUserEntity, Long> {
                         lower(u.last_name) like ?1 or
                         lower(u.middle_name) like ?1
                     )
+                    order by u.id desc
                     limit ?2
                     offset ?3
                     """
@@ -57,8 +60,7 @@ public interface AppUserRepository extends JpaRepository<AppUserEntity, Long> {
             nativeQuery = true,
             value = """
                     select count(*) from app_user u
-                    where u.user_role = 'AUTHOR' and
-                    u.department_id = ?2 and
+                    where u.user_role = ?2 and
                     (
                         lower(u.username) like ?1 or
                         lower(u.hemis_id) like ?1 or
@@ -68,14 +70,13 @@ public interface AppUserRepository extends JpaRepository<AppUserEntity, Long> {
                     )
                     """
     )
-    Long countAuthorBySearchKeyAndDepartment(String searchKey, Long depId);
+    Long countBySearchKeyAndUserRole(String searchKey, String userRole);
 
     @Query(
             nativeQuery = true,
             value = """
                     select * from app_user u
-                    where u.user_role = 'AUTHOR' and
-                    u.department_id = ?2 and
+                    where u.user_role = ?2 and
                     (
                         lower(u.username) like ?1 or
                         lower(u.hemis_id) like ?1 or
@@ -83,12 +84,15 @@ public interface AppUserRepository extends JpaRepository<AppUserEntity, Long> {
                         lower(u.last_name) like ?1 or
                         lower(u.middle_name) like ?1
                     )
+                    order by u.id desc
                     limit ?3
                     offset ?4
                     """
     )
-    List<AppUserEntity> findAuthorBySearchKeyAndDepartment(String searchKey, Long depId, long limit, long offset);
+    List<AppUserEntity> findBySearchKeyAndUserRole(String searchKey, String userRole, long limit, long offset);
 
     boolean existsByDepartment(DepartmentEntity department);
+
+    Optional<AppUserEntity> findByIdAndUserRole(Long id, UserRole userRole);
 
 }
